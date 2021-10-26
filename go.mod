@@ -1,6 +1,6 @@
-module github.com/xl4hub/avro/v1
+module github.com/xl4hub/hamba-avro
 
-go 1.11
+go 1.14
 
 require (
 	github.com/golang/snappy v0.0.4
