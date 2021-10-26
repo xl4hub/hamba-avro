@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/hamba/avro"
+	"github.com/xl4hub/hamba-avro"
 )
 
 func ExampleRegister() {

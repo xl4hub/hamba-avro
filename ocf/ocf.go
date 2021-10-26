@@ -13,8 +13,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/hamba/avro"
-	"github.com/hamba/avro/internal/bytesx"
+	"github.com/xl4hub/hamba-avro"
+	"github.com/xl4hub/hamba-avro/internal/bytesx"
 )
 
 const (

@@ -4,7 +4,7 @@ import (
 	"io"
 	"testing"
 
-	"github.com/hamba/avro/internal/bytesx"
+	"github.com/xl4hub/hamba-avro/internal/bytesx"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/hamba/avro/ocf"
+	"github.com/xl4hub/hamba-avro/ocf"
 	"github.com/stretchr/testify/assert"
 )
 
