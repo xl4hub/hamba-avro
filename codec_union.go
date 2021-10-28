@@ -365,7 +365,7 @@ func encoderOfResolverUnion(cfg *frozenConfig, schema Schema, typ reflect2.Type)
 		if doubleMatchesInt {
 			break
 		}
-		doubleMatchesInt = true
+		doubleMatchesInt = true  // if match with "double" not found the try again with "int"
 	}
 	if schema == nil {
 		//fmt.Printf("encoderOfResolverUnion schema is nil\n")
