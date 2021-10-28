@@ -440,3 +440,23 @@ func TestEncoder_UnionInterfaceNotInSchema(t *testing.T) {
 
 	assert.Error(t, err)
 }
+
+func TestEncoder_UnionInterfaceDoubleMatchInt(t *testing.T) {
+	defer ConfigTeardown()
+
+	schema := `{"type": "record", "name": "test", "fields" : [{"name": "a", "type": ["null", "int"]}, {"name": "b", "type": ["null","double"]}]}`
+	buf := bytes.NewBuffer([]byte{})
+	enc, err := avro.NewEncoder(schema, buf)
+	assert.NoError(t, err)
+
+	type TestRecord struct {
+		A float64  `avro:"a"`
+		B float64 `avro:"b"`
+	}
+	var val interface{} = TestRecord{A: 1234567890, B: 12345.67890}
+
+	err = enc.Encode(val)
+
+	assert.NoError(t, err)
+	assert.Equal(t, []byte{2,164,139,176,153,9,2,161,248,49,230,214,28,200,64}, buf.Bytes())
+}

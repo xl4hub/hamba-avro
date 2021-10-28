@@ -37,6 +37,7 @@ func createDecoderOfUnion(cfg *frozenConfig, schema Schema, typ reflect2.Type) V
 func createEncoderOfUnion(cfg *frozenConfig, schema Schema, typ reflect2.Type) ValEncoder {
 	switch typ.Kind() {
 	case reflect.Map:
+		//fmt.Printf("createEncoderOfUnion1 schema=%+v typ=%+v\n", schema.Type(), typ)
 		if typ.(reflect2.MapType).Key().Kind() != reflect.String ||
 			typ.(reflect2.MapType).Elem().Kind() != reflect.Interface {
 			break
@@ -44,12 +45,14 @@ func createEncoderOfUnion(cfg *frozenConfig, schema Schema, typ reflect2.Type) V
 		return encoderOfMapUnion(cfg, schema, typ)
 
 	case reflect.Ptr:
+		//fmt.Printf("createEncoderOfUnion2 schema=%+v typ=%+v\n", schema.Type(), typ)
 		if !schema.(*UnionSchema).Nullable() {
 			break
 		}
 		return encoderOfPtrUnion(cfg, schema, typ)
 	}
 
+	//fmt.Printf("createEncoderOfUnion3 schema=%+v typ=%+v\n", schema.Type(), typ)
 	return encoderOfResolverUnion(cfg, schema, typ)
 }
 
@@ -333,24 +336,43 @@ func encoderOfResolverUnion(cfg *frozenConfig, schema Schema, typ reflect2.Type)
 
 	names, err := cfg.resolver.Name(typ)
 	if err != nil {
+		//fmt.Printf("encoderOfResolverUnion err=%+v\n", err)
 		return &errorEncoder{err: err}
 	}
 
 	var pos int
-	for _, name := range names {
-		if idx := strings.Index(name, ":"); idx > 0 {
-			name = name[:idx]
-		}
+	doubleMatchesInt:=false
+	for {
+		for _, name := range names {
+			if idx := strings.Index(name, ":"); idx > 0 {
+				name = name[:idx]
+			}
 
-		schema, pos = union.Types().Get(name)
-		if schema != nil {
+			schema, pos = union.Types().Get(name)
+			//fmt.Printf("encoderOfResolverUnion name=%v\n",name)
+			if schema == nil && doubleMatchesInt {
+				if name == "double" {
+					// XL4: JSON Unmarshall will always identify a number as float64 or
+					//      double but the avro schema may be "int" so if "double" doesn't
+					//      match then try as "int".
+					schema, pos = union.Types().Get("int")
+				}
+			}
+			if schema != nil {
+				break
+			}
+		}
+		if doubleMatchesInt {
 			break
 		}
+		doubleMatchesInt = true
 	}
 	if schema == nil {
+		//fmt.Printf("encoderOfResolverUnion schema is nil\n")
 		return &errorEncoder{err: fmt.Errorf("avro: unknown union type %s", names[0])}
 	}
 
+	//fmt.Printf("encoderOfResolverUnion schema=%+v typ=%+v\n", schema.Type(), typ)
 	encoder := encoderOfType(cfg, schema, typ)
 
 	return &unionResolverEncoder{

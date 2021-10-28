@@ -67,10 +67,14 @@ func createDecoderOfNative(schema Schema, typ reflect2.Type) ValDecoder {
 		return &float32Codec{}
 
 	case reflect.Float64:
-		if schema.Type() != Double {
-			break
+		switch schema.Type() {
+		// XL4:  Treat a Float64 as double or as int
+		case Double:
+			return &float64Codec{}
+
+		case Int:
+			return &int64Codec{}
 		}
-		return &float64Codec{}
 
 	case reflect.String:
 		if schema.Type() != String {
@@ -187,10 +191,17 @@ func createEncoderOfNative(schema Schema, typ reflect2.Type) ValEncoder {
 		}
 
 	case reflect.Float64:
-		if schema.Type() != Double {
-			break
+		switch schema.Type() {
+		// XL4:  Treat a Float64 as double or long or int
+		case Double:
+			return &float64Codec{}
+
+		case Long:
+			return &longFromFloat64Codec{}
+
+		case Int:
+			return &intFromFloat64Codec{}
 		}
-		return &float64Codec{}
 
 	case reflect.String:
 		if schema.Type() != String {
@@ -362,6 +373,26 @@ func (*float64Codec) Decode(ptr unsafe.Pointer, r *Reader) {
 
 func (*float64Codec) Encode(ptr unsafe.Pointer, w *Writer) {
 	w.WriteDouble(*((*float64)(ptr)))
+}
+
+type intFromFloat64Codec struct{}
+
+//func (*int32FromFloat64Codec) Decode(ptr unsafe.Pointer, r *Reader) {
+//	*((*float64)(ptr)) = r.ReadDouble()
+//}
+
+func (*intFromFloat64Codec) Encode(ptr unsafe.Pointer, w *Writer) {
+	w.WriteInt(int32(*((*float64)(ptr))))
+}
+
+type longFromFloat64Codec struct{}
+
+//func (*longFromFloat64Codec) Decode(ptr unsafe.Pointer, r *Reader) {
+//	*((*float64)(ptr)) = r.ReadDouble()
+//}
+
+func (*longFromFloat64Codec) Encode(ptr unsafe.Pointer, w *Writer) {
+	w.WriteLong(int64(*((*float64)(ptr))))
 }
 
 type stringCodec struct{}
