@@ -116,23 +116,35 @@ type mapUnionEncoder struct {
 func (e *mapUnionEncoder) Encode(ptr unsafe.Pointer, w *Writer) {
 	m := *((*map[string]interface{})(ptr))
 
-	if len(m) > 1 {
+	if len(m) > 1 && !e.schema.Nullable() {
 		w.Error = errors.New("avro: cannot encode union map with multiple entries")
 		return
 	}
 
 	name := "null"
 	val := interface{}(nil)
-	for k, v := range m {
-		name = k
-		val = v
-		break
+	var schema Schema
+	var pos int
+	if len(m) > 1 {
+		schema = e.schema.Types()[1]
+		pos = 1
+		val = m
+	} else {
+		for k, v := range m {
+			name = k
+			val = v
+			break
+		}
+		schema, pos = e.schema.Types().Get(name)
 	}
 
-	schema, pos := e.schema.Types().Get(name)
 	if schema == nil {
 		w.Error = fmt.Errorf("avro: unknown union type %s", name)
-		return
+		schema, pos = e.schema.Types().Get("computerec")
+		if schema == nil {
+			w.Error = fmt.Errorf("avro: unknown union type %s", name)
+			return
+		}
 	}
 
 	w.WriteLong(int64(pos))

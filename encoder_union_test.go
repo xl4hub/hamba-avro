@@ -411,6 +411,39 @@ func TestEncoder_UnionInterfaceWithDecimal(t *testing.T) {
 	assert.Equal(t, []byte{0x02, 0x6, 0x00, 0x87, 0x78}, buf.Bytes())
 }
 
+func TestEncoder_UnionInterfaceNullUnregisteredType(t *testing.T) {
+	defer ConfigTeardown()
+
+	schema := `["null", {"type": "record", "name": "test", "fields" : [{"name": "a", "type": "long"}, {"name": "b", "type": "string"}]}]`
+	buf := bytes.NewBuffer([]byte{})
+	enc, err := avro.NewEncoder(schema, buf)
+	assert.NoError(t, err)
+
+	var val interface{} = &TestRecord{}
+	err = enc.Encode(val)
+
+	assert.NoError(t, err)
+	assert.Equal(t, []byte{0x02, 0x00, 0x00}, buf.Bytes())
+}
+
+func TestEncoder_UnionInterfaceNullUnregisteredTypeWithRecord(t *testing.T) {
+	defer ConfigTeardown()
+
+	schema := `["null", {"type": "record", "name": "test", "fields" : [{"name": "a", "type": "long"}, {"name": "b", "type": "string"}]}]`
+	buf := bytes.NewBuffer([]byte{})
+	enc, err := avro.NewEncoder(schema, buf)
+	assert.NoError(t, err)
+
+	m := map[string]interface{}{
+		"a": int64(1234),
+		"b": "abcd",
+	}
+	err = enc.Encode(m)
+
+	assert.NoError(t, err)
+	assert.Equal(t, []byte{0x2, 0xa4, 0x13, 0x8, 0x61, 0x62, 0x63, 0x64}, buf.Bytes())
+}
+
 func TestEncoder_UnionInterfaceUnregisteredType(t *testing.T) {
 	defer ConfigTeardown()
 
