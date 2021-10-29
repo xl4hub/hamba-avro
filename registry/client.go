@@ -17,9 +17,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/xl4hub/hamba-avro"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/modern-go/concurrent"
+	"github.com/xl4hub/hamba-avro"
 )
 
 const (

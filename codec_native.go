@@ -377,19 +377,11 @@ func (*float64Codec) Encode(ptr unsafe.Pointer, w *Writer) {
 
 type intFromFloat64Codec struct{}
 
-//func (*int32FromFloat64Codec) Decode(ptr unsafe.Pointer, r *Reader) {
-//	*((*float64)(ptr)) = r.ReadDouble()
-//}
-
 func (*intFromFloat64Codec) Encode(ptr unsafe.Pointer, w *Writer) {
 	w.WriteInt(int32(*((*float64)(ptr))))
 }
 
 type longFromFloat64Codec struct{}
-
-//func (*longFromFloat64Codec) Decode(ptr unsafe.Pointer, r *Reader) {
-//	*((*float64)(ptr)) = r.ReadDouble()
-//}
 
 func (*longFromFloat64Codec) Encode(ptr unsafe.Pointer, w *Writer) {
 	w.WriteLong(int64(*((*float64)(ptr))))

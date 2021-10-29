@@ -13,7 +13,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/xl4hub/hamba-avro"
+	avro "github.com/xl4hub/hamba-avro"
 	"github.com/xl4hub/hamba-avro/internal/bytesx"
 )
 

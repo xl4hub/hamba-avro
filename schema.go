@@ -10,9 +10,9 @@ import (
 	"strings"
 	"sync/atomic"
 
-	"github.com/xl4hub/hamba-avro/pkg/crc64"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/modern-go/concurrent"
+	"github.com/xl4hub/hamba-avro/pkg/crc64"
 )
 
 var nullDefault = struct{}{}

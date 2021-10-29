@@ -66,7 +66,6 @@ func (w *Writer) WriteVal(schema Schema, val interface{}) {
 	if encoder == nil {
 		typ := reflect2.TypeOf(val)
 
-		//fmt.Printf("WriteVal v=%+v T=%T  schema=%+v  typ=%+v\n", val, val, schema, typ)
 		encoder = w.cfg.EncoderOf(schema, typ)
 	}
 
@@ -157,20 +156,16 @@ func (e *onePtrEncoder) Encode(ptr unsafe.Pointer, w *Writer) {
 }
 
 func encoderOfType(cfg *frozenConfig, schema Schema, typ reflect2.Type) ValEncoder {
-	//fmt.Printf("encoderOfType schema.Type=%+v typ=%+v\n", schema.Type(), typ)
 	if enc := createEncoderOfMarshaler(cfg, schema, typ); enc != nil {
-		//fmt.Printf("  return1 enc=%+v\n", enc)
 		return enc
 	}
 
 	if typ.Kind() == reflect.Interface {
-		//fmt.Printf("  return2\n")
 		return &interfaceEncoder{schema: schema, typ: typ}
 	}
 
 	switch schema.Type() {
 	case String, Bytes, Int, Long, Float, Double, Boolean, Null:
-		//fmt.Printf("encoderOfType schema.Type=%+v typ=%+v\n", schema.Type(), typ)
 		return createEncoderOfNative(schema, typ)
 
 	case Record:
@@ -189,11 +184,9 @@ func encoderOfType(cfg *frozenConfig, schema Schema, typ reflect2.Type) ValEncod
 		return createEncoderOfMap(cfg, schema, typ)
 
 	case Union:
-		//fmt.Printf("encoderOfType schema.Type=%+v typ=%+v\n", schema.Type(), typ)
 		return createEncoderOfUnion(cfg, schema, typ)
 
 	case Fixed:
-		//fmt.Printf("encoderOfType schema.Type=%+v typ=%+v\n", schema.Type(), typ)
 		return createEncoderOfFixed(schema, typ)
 
 	default:
